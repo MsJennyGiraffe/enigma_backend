@@ -68,7 +68,7 @@ app.post("/encrypts", function(req, res) {
   } else {
     db.collection(ENCRYPTED_COLLECTION).insertOne(newMessage, function(err, doc) {
       if (err) {
-        handleError(res, err.message, "Failed to create new encrypted message");
+        handleError(res, err.message, "Failed to create encrypted message");
       } else {
         res.status(201).json(doc.ops[0]);
       }
@@ -114,3 +114,32 @@ app.post("/encrypts", function(req, res) {
 //     }
 //   });
 // });
+
+app.get("/decrypts", function(req, res) {
+  db.collection(DECRYPTED_COLLECTION).find({}).toArray(function(err, docs) {
+    if (err) {
+      handleError(res, err.message, "Failed to get contacts.");
+    } else {
+      res.status(200).json(docs);
+    }
+  });
+});
+
+app.post("/decrypts", function(req, res) {
+  let newMessage = req.body;
+  newMessage.createDate = new Date();
+  newMessage.messageType = "decrypted";
+  newMessage.decryptedMessage = cryptor(newMessage.originalMessage,[4,8,10,103],"decrypt");
+
+  if (!(req.body.originalMessage)) {
+    handleError(res, "Message can't be blank", 400);
+  } else {
+    db.collection(DECRYPTED_COLLECTION).insertOne(newMessage, function(err, doc) {
+      if (err) {
+        handleError(res, err.message, "Failed to create decrypted message");
+      } else {
+        res.status(201).json(doc.ops[0]);
+      }
+    });
+  }
+});
