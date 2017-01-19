@@ -1,0 +1,27 @@
+{
+  "name": "enigma_be",
+  "version": "1.0.0",
+  "description": "Encoder, decoder and cracker",
+  "main": "index.js",
+  "dependencies": {},
+  "devDependencies": {},
+  "scripts": {
+    "test": "mocha"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/MsJennyGiraffe/enigma_backend.git"
+  },
+  "keywords": [
+    "api",
+    "encode",
+    "decode",
+    "crack"
+  ],
+  "author": "Thom Schlereth, Jennifer Soden",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/MsJennyGiraffe/enigma_backend/issues"
+  },
+  "homepage": "https://github.com/MsJennyGiraffe/enigma_backend#readme"
+}
