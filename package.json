@@ -4,7 +4,9 @@
   "description": "Encoder, decoder and cracker",
   "main": "server.js",
   "dependencies": {
-    "express": "^4.14.0"
+    "body-parser": "^1.13.3",
+    "express": "^4.14.0",
+    "mongodb": "^2.1.6"
   },
   "devDependencies": {
     "mocha": "^3.2.0"
