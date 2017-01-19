@@ -67,8 +67,8 @@ app.post("/contacts", function(req, res) {
       } else {
         res.status(201).json(doc.ops[0]);
       }
-    }
-  });
+    });
+  }
 });
 
 /*  "/contacts/:id"
