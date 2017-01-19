@@ -55,15 +55,16 @@ app.get("/encrypt", function(req, res) {
 });
 
 app.post("/encrypt", function(req, res) {
-  var newContact = req.body;
-  newContact.createDate = new Date();
+  var newMessage = req.body;
+  newMessage.createDate = new Date();
+  newMessage.messageType = "encrypted";
 
-  if (!(req.body.firstName || req.body.lastName)) {
-    handleError(res, "Invalid user input", "Must provide a first or last name.", 400);
+  if (!(req.body.messageString)) {
+    handleError(res, "Message can't be blank", 400);
   } else {
-    db.collection(MESSAGE_COLLECTION).insertOne(newContact, function(err, doc) {
+    db.collection(MESSAGE_COLLECTION).insertOne(newMessage, function(err, doc) {
       if (err) {
-        handleError(res, err.message, "Failed to create new contact.");
+        handleError(res, err.message, "Failed to create new encrypted message");
       } else {
         res.status(201).json(doc.ops[0]);
       }
