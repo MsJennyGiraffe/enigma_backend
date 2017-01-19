@@ -1,17 +1,20 @@
-var express = require("express");
-var path = require("path");
-var bodyParser = require("body-parser");
-var mongodb = require("mongodb");
-var ObjectID = mongodb.ObjectID;
+const express = require("express");
+const path = require("path");
+const bodyParser = require("body-parser");
+const mongodb = require("mongodb");
+const cryptor = require('./lib/cryptor');
 
-var CONTACTS_COLLECTION = "contacts";
+let ObjectID = mongodb.ObjectID;
 
-var app = express();
+let ENCRYPTED_COLLECTION = "encrypted";
+let DECRYPTED_COLLECTION = "decrypted";
+
+let app = express();
 app.use(express.static(__dirname + "/public"));
 app.use(bodyParser.json());
 
-// Create a database variable outside of the database connection callback to reuse the connection pool in your app.
-var db;
+// Create a database letiable outside of the database connection callback to reuse the connection pool in your app.
+let db;
 
 // Connect to the database before starting the application server.
 mongodb.MongoClient.connect(process.env.MONGODB_URI, function (err, database) {
@@ -25,8 +28,8 @@ mongodb.MongoClient.connect(process.env.MONGODB_URI, function (err, database) {
   console.log("Database connection ready");
 
   // Initialize the app.
-  var server = app.listen(process.env.PORT || 8080, function () {
-    var port = server.address().port;
+  let server = app.listen(process.env.PORT || 8080, function () {
+    let port = server.address().port;
     console.log("App now running on port", port);
   });
 });
@@ -44,8 +47,8 @@ function handleError(res, reason, message, code) {
  *    POST: creates a new contact
  */
 
-app.get("/contacts", function(req, res) {
-  db.collection(CONTACTS_COLLECTION).find({}).toArray(function(err, docs) {
+app.get("/encrypts", function(req, res) {
+  db.collection(ENCRYPTED_COLLECTION).find({}).toArray(function(err, docs) {
     if (err) {
       handleError(res, err.message, "Failed to get contacts.");
     } else {
@@ -54,16 +57,18 @@ app.get("/contacts", function(req, res) {
   });
 });
 
-app.post("/contacts", function(req, res) {
-  var newContact = req.body;
-  newContact.createDate = new Date();
+app.post("/encrypts", function(req, res) {
+  let newMessage = req.body;
+  newMessage.createDate = new Date();
+  newMessage.messageType = "encrypted";
+  newMessage.encryptedMessage = cryptor(newMessage.originalMessage,[4,8,10,103],"encrypt");
 
-  if (!(req.body.firstName || req.body.lastName)) {
-    handleError(res, "Invalid user input", "Must provide a first or last name.", 400);
+  if (!(req.body.originalMessage)) {
+    handleError(res, "Message can't be blank", 400);
   } else {
-    db.collection(CONTACTS_COLLECTION).insertOne(newContact, function(err, doc) {
+    db.collection(ENCRYPTED_COLLECTION).insertOne(newMessage, function(err, doc) {
       if (err) {
-        handleError(res, err.message, "Failed to create new contact.");
+        handleError(res, err.message, "Failed to create encrypted message");
       } else {
         res.status(201).json(doc.ops[0]);
       }
@@ -77,35 +82,64 @@ app.post("/contacts", function(req, res) {
  *    DELETE: deletes contact by id
  */
 
-app.get("/contacts/:id", function(req, res) {
-  db.collection(CONTACTS_COLLECTION).findOne({ _id: new ObjectID(req.params.id) }, function(err, doc) {
+// app.get("/contacts/:id", function(req, res) {
+//   db.collection(CONTACTS_COLLECTION).findOne({ _id: new ObjectID(req.params.id) }, function(err, doc) {
+//     if (err) {
+//       handleError(res, err.message, "Failed to get contact");
+//     } else {
+//       res.status(200).json(doc);
+//     }
+//   });
+// });
+//
+// app.put("/contacts/:id", function(req, res) {
+//   let updateDoc = req.body;
+//   delete updateDoc._id;
+//
+//   db.collection(CONTACTS_COLLECTION).updateOne({_id: new ObjectID(req.params.id)}, updateDoc, function(err, doc) {
+//     if (err) {
+//       handleError(res, err.message, "Failed to update contact");
+//     } else {
+//       res.status(204).end();
+//     }
+//   });
+// });
+//
+// app.delete("/contacts/:id", function(req, res) {
+//   db.collection(CONTACTS_COLLECTION).deleteOne({_id: new ObjectID(req.params.id)}, function(err, result) {
+//     if (err) {
+//       handleError(res, err.message, "Failed to delete contact");
+//     } else {
+//       res.status(204).end();
+//     }
+//   });
+// });
+
+app.get("/decrypts", function(req, res) {
+  db.collection(DECRYPTED_COLLECTION).find({}).toArray(function(err, docs) {
     if (err) {
-      handleError(res, err.message, "Failed to get contact");
+      handleError(res, err.message, "Failed to get contacts.");
     } else {
-      res.status(200).json(doc);
+      res.status(200).json(docs);
     }
   });
 });
 
-app.put("/contacts/:id", function(req, res) {
-  var updateDoc = req.body;
-  delete updateDoc._id;
+app.post("/decrypts", function(req, res) {
+  let newMessage = req.body;
+  newMessage.createDate = new Date();
+  newMessage.messageType = "decrypted";
+  newMessage.decryptedMessage = cryptor(newMessage.originalMessage,[4,8,10,103],"decrypt");
 
-  db.collection(CONTACTS_COLLECTION).updateOne({_id: new ObjectID(req.params.id)}, updateDoc, function(err, doc) {
-    if (err) {
-      handleError(res, err.message, "Failed to update contact");
-    } else {
-      res.status(204).end();
-    }
-  });
-});
-
-app.delete("/contacts/:id", function(req, res) {
-  db.collection(CONTACTS_COLLECTION).deleteOne({_id: new ObjectID(req.params.id)}, function(err, result) {
-    if (err) {
-      handleError(res, err.message, "Failed to delete contact");
-    } else {
-      res.status(204).end();
-    }
-  });
+  if (!(req.body.originalMessage)) {
+    handleError(res, "Message can't be blank", 400);
+  } else {
+    db.collection(DECRYPTED_COLLECTION).insertOne(newMessage, function(err, doc) {
+      if (err) {
+        handleError(res, err.message, "Failed to create decrypted message");
+      } else {
+        res.status(201).json(doc.ops[0]);
+      }
+    });
+  }
 });
