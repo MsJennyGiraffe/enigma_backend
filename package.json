@@ -2,9 +2,15 @@
   "name": "enigma_be",
   "version": "1.0.0",
   "description": "Encoder, decoder and cracker",
-  "main": "index.js",
-  "dependencies": {},
-  "devDependencies": {},
+  "main": "server.js",
+  "dependencies": {
+    "body-parser": "^1.13.3",
+    "express": "^4.14.0",
+    "mongodb": "^2.1.6"
+  },
+  "devDependencies": {
+    "mocha": "^3.2.0"
+  },
   "scripts": {
     "test": "mocha"
   },
