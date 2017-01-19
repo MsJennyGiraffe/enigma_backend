@@ -1,18 +1,18 @@
-var express = require("express");
-var path = require("path");
-var bodyParser = require("body-parser");
-var mongodb = require("mongodb");
-var ObjectID = mongodb.ObjectID;
+const express = require("express");
+const path = require("path");
+const bodyParser = require("body-parser");
+const mongodb = require("mongodb");
 const encryptor = require('./lib/encryptor');
 
-var MESSAGE_COLLECTION = "message";
+let ObjectID = mongodb.ObjectID;
+let MESSAGE_COLLECTION = "message";
 
-var app = express();
+let app = express();
 app.use(express.static(__dirname + "/public"));
 app.use(bodyParser.json());
 
-// Create a database variable outside of the database connection callback to reuse the connection pool in your app.
-var db;
+// Create a database letiable outside of the database connection callback to reuse the connection pool in your app.
+let db;
 
 // Connect to the database before starting the application server.
 mongodb.MongoClient.connect(process.env.MONGODB_URI, function (err, database) {
@@ -26,8 +26,8 @@ mongodb.MongoClient.connect(process.env.MONGODB_URI, function (err, database) {
   console.log("Database connection ready");
 
   // Initialize the app.
-  var server = app.listen(process.env.PORT || 8080, function () {
-    var port = server.address().port;
+  let server = app.listen(process.env.PORT || 8080, function () {
+    let port = server.address().port;
     console.log("App now running on port", port);
   });
 });
@@ -56,10 +56,10 @@ app.get("/encrypt", function(req, res) {
 });
 
 app.post("/encrypt", function(req, res) {
-  var newMessage = req.body;
+  let newMessage = req.body;
   newMessage.createDate = new Date();
   newMessage.messageType = "encrypted";
-  newMessage.hello = encryptor();
+  newMessage.encryptedMessage = encryptor(newMessage.messageString,[4,8,10,103]);
 
   if (!(req.body.messageString)) {
     handleError(res, "Message can't be blank", 400);
@@ -91,7 +91,7 @@ app.post("/encrypt", function(req, res) {
 // });
 //
 // app.put("/contacts/:id", function(req, res) {
-//   var updateDoc = req.body;
+//   let updateDoc = req.body;
 //   delete updateDoc._id;
 //
 //   db.collection(CONTACTS_COLLECTION).updateOne({_id: new ObjectID(req.params.id)}, updateDoc, function(err, doc) {
