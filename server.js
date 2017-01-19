@@ -46,6 +46,7 @@ function handleError(res, reason, message, code) {
  */
 
 app.get("/contacts", function(req, res) {
+  res.send('Hello World')
 });
 
 app.post("/contacts", function(req, res) {
