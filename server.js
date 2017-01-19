@@ -61,7 +61,7 @@ app.post("/encrypts", function(req, res) {
   let newMessage = req.body;
   newMessage.createDate = new Date();
   newMessage.messageType = "encrypted";
-  newMessage.encryptedMessage = cryptor(newMessage.messageString,[4,8,10,103],"encrypt");
+  newMessage.encryptedMessage = cryptor(newMessage.originalMessage,[4,8,10,103],"encrypt");
 
   if (!(req.body.originalMessage)) {
     handleError(res, "Message can't be blank", 400);
