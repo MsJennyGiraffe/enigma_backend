@@ -2,10 +2,12 @@ const express = require("express");
 const path = require("path");
 const bodyParser = require("body-parser");
 const mongodb = require("mongodb");
-const encryptor = require('./lib/encryptor');
+const cryptor = require('./lib/cryptor');
 
 let ObjectID = mongodb.ObjectID;
-let MESSAGE_COLLECTION = "message";
+
+let ENCRYPTED_COLLECTION = "encrypted";
+let DECRYPTED_COLLECTION = "decrypted";
 
 let app = express();
 app.use(express.static(__dirname + "/public"));
@@ -45,8 +47,8 @@ function handleError(res, reason, message, code) {
  *    POST: creates a new contact
  */
 
-app.get("/encrypt", function(req, res) {
-  db.collection(MESSAGE_COLLECTION).find({}).toArray(function(err, docs) {
+app.get("/encrypts", function(req, res) {
+  db.collection(ENCRYPTED_COLLECTION).find({}).toArray(function(err, docs) {
     if (err) {
       handleError(res, err.message, "Failed to get contacts.");
     } else {
@@ -55,16 +57,16 @@ app.get("/encrypt", function(req, res) {
   });
 });
 
-app.post("/encrypt", function(req, res) {
+app.post("/encrypts", function(req, res) {
   let newMessage = req.body;
   newMessage.createDate = new Date();
   newMessage.messageType = "encrypted";
-  newMessage.encryptedMessage = encryptor(newMessage.messageString,[4,8,10,103]);
+  newMessage.encryptedMessage = cryptor(newMessage.messageString,[4,8,10,103],"encrypt");
 
-  if (!(req.body.messageString)) {
+  if (!(req.body.originalMessage)) {
     handleError(res, "Message can't be blank", 400);
   } else {
-    db.collection(MESSAGE_COLLECTION).insertOne(newMessage, function(err, doc) {
+    db.collection(ENCRYPTED_COLLECTION).insertOne(newMessage, function(err, doc) {
       if (err) {
         handleError(res, err.message, "Failed to create new encrypted message");
       } else {
