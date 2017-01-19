@@ -3,6 +3,7 @@ var path = require("path");
 var bodyParser = require("body-parser");
 var mongodb = require("mongodb");
 var ObjectID = mongodb.ObjectID;
+const encryptor = require('./lib/encryptor');
 
 var MESSAGE_COLLECTION = "message";
 
@@ -58,6 +59,7 @@ app.post("/encrypt", function(req, res) {
   var newMessage = req.body;
   newMessage.createDate = new Date();
   newMessage.messageType = "encrypted";
+  newMessage.hello = encryptor();
 
   if (!(req.body.messageString)) {
     handleError(res, "Message can't be blank", 400);
