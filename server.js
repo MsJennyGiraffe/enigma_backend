@@ -50,6 +50,8 @@ app.get("/contacts", function(req, res) {
 });
 
 app.post("/contacts", function(req, res) {
+  console.log(process.env.MONGODB_URI);
+  
   var newContact = req.body;
   newContact.createDate = new Date();
 
