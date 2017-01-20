@@ -1,3 +1,4 @@
+"use strict";
 const express = require("express");
 const path = require("path");
 const bodyParser = require("body-parser");
@@ -16,8 +17,10 @@ app.use(bodyParser.json());
 // Create a database letiable outside of the database connection callback to reuse the connection pool in your app.
 let db;
 
+var url = 'mongodb://localhost:27017/database';
 // Connect to the database before starting the application server.
-mongodb.MongoClient.connect(process.env.MONGODB_URI, function (err, database) {
+// mongodb.MongoClient.connect(process.env.MONGODB_URI, function (err, database) {
+mongodb.MongoClient.connect(url, function (err, database) {
   if (err) {
     console.log(err);
     process.exit(1);
