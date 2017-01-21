@@ -1,4 +1,14 @@
 # enigma_backend
+
+Project based off of a Turing School [project](https://github.com/turingschool/curriculum/blob/master/source/projects/enigma.markdown) for module 1. Uses node.js and mongodb instead of Ruby.
+
+## Setup
+Go to project and clone project
+```
+
+```
+
+# enigma_backend
 Install Mongo.
 
 Start mongodb
