@@ -1,8 +1,9 @@
+"use strict";
 const express = require("express");
 const path = require("path");
 const bodyParser = require("body-parser");
 const mongodb = require("mongodb");
-const cryptor = require('./lib/cryptor');
+const Cryptor = require('./lib/cryptor');
 
 let ObjectID = mongodb.ObjectID;
 
@@ -50,7 +51,7 @@ function handleError(res, reason, message, code) {
 app.get("/encrypts", function(req, res) {
   db.collection(ENCRYPTED_COLLECTION).find({}).toArray(function(err, docs) {
     if (err) {
-      handleError(res, err.message, "Failed to get contacts.");
+      handleError(res, err.message, "Failed to get encrypts.");
     } else {
       res.status(200).json(docs);
     }
@@ -59,9 +60,10 @@ app.get("/encrypts", function(req, res) {
 
 app.post("/encrypts", function(req, res) {
   let newMessage = req.body;
+  let cryptor = new Cryptor({rotations: [4,8,10,103] , cryptType: "encrypt"})
   newMessage.createDate = new Date();
   newMessage.messageType = "encrypted";
-  newMessage.encryptedMessage = cryptor(newMessage.originalMessage,[4,8,10,103],"encrypt");
+  newMessage.encryptedMessage = cryptor.rotateMessage(newMessage.originalMessage);
 
   if (!(req.body.originalMessage)) {
     handleError(res, "Message can't be blank", 400);
@@ -127,9 +129,10 @@ app.get("/decrypts", function(req, res) {
 
 app.post("/decrypts", function(req, res) {
   let newMessage = req.body;
+  let cryptor = new Cryptor({rotations: [4,8,10,103] , cryptType: "decrypt"});
   newMessage.createDate = new Date();
   newMessage.messageType = "decrypted";
-  newMessage.decryptedMessage = cryptor(newMessage.originalMessage,[4,8,10,103],"decrypt");
+  newMessage.decryptedMessage = cryptor.rotateMessage(newMessage.originalMessage);
 
   if (!(req.body.originalMessage)) {
     handleError(res, "Message can't be blank", 400);
