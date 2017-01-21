@@ -3,6 +3,10 @@ Install Mongo.
 
 Start mongodb
 
+From project root folder:
+```
+mkdir database
+```
 ```
 mongod --dbpath=/database
 ```
