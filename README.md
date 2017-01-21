@@ -8,7 +8,7 @@ From project root folder:
 mkdir database
 ```
 ```
-mongod --dbpath=/database
+mongod --dbpath=./database
 ```
 
 Start locally
